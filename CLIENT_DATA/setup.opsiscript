@@ -1,0 +1,124 @@
+;======================================================================
+; setup.ins GPG4WIN
+; Installer-Typ: NSIS
+; 
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 08:45:09 +0200
+;======================================================================
+
+;======================================================================
+[Initial]
+;======================================================================
+setLogLevel=5
+; Log Errors in Logfile but don't abort:
+ExitOnError=true
+; Show syntax errors in the script:
+ScriptErrorMessages=off
+; Dont trace step by step through the script: 
+TraceMode=off 
+; Let started programs run in front of the winst window
+StayOnTop=false 
+
+;======================================================================
+[Actions]
+;======================================================================
+include_insert "%ScriptPath%\product_variables.opsiinc"
+
+
+;=== Check free space
+if not(HasMinimumSpace ("%SystemDrive%", $MinimumSpace$))
+	LogError "Not enough space on %SystemDrive%, " + $MinimumSpace$ + " on drive %SystemDrive% needed for " + $ProductId$
+	isFatalError
+	; Stop process and set installation status to failed
+else
+	;=== remove previous installation
+	if FileExists("%ScriptPath%\delsub.opsiinc")
+		comment  "Starting uninstall sub section"
+		sub "%ScriptPath%\delsub.opsiinc"	
+	else
+		logError "Can't find uninstaller script"
+		isFatalError "delsub.opsiinc not found"
+	endif	
+	
+	; Start the installation
+	ShowBitmap $Img_Install$ $ProductName$
+	Message "Installing " + $ProductName$ + " " + $Version$+ " (" + $sw_arch$ + " bit)"
+	
+	marktime	
+	
+	;=== create install config
+	comment "Creating configuration file for setup"
+	if (FileExists($InstallCfg$))
+		Files_remove_install_ini
+	endif
+	patches_install_ini $InstallCfg$
+	
+
+	if not (FileExists($Installer$))
+		logError "Installer not found: [" + $Installer$ + "]"
+		isFatalError
+	endif
+	
+	if not (FileExists($InstallCfg$))
+		logError "Install config not found: [" + $InstallCfg$ + "]"
+		isFatalError
+	endif	
+	
+	comment "Start setup program"
+	Winbatch_install
+	Sub_check_exitcode_nsis
+
+	
+	;=== custom post install
+	comment "include custom post install file"
+	if not ($CustomPostInstall$ = "none")
+		if FileExists("%ScriptPath%\custom\" + $CustomPostInstall$)
+			ShowBitmap $Img_Install_Custom$ $ProductName$
+			include_insert "%ScriptPath%\custom\" + $CustomPostInstall$
+			ShowBitmap $Img_Install$ $ProductName$
+		endif
+	endif
+	
+	;=== cleanup
+	if (FileExists($InstallCfg$))
+		Files_remove_install_ini
+	endif
+
+	;=== measure installation time
+	set $TimeDiff$ = getDiffTimeSec
+	Message  "Setup time: " + $TimeDiff$ + " seconds"	
+	
+endif
+
+ 
+;======================================================================
+[Winbatch_install]
+;======================================================================
+"$Installer$" $Inst_Opts$ 
+
+ 
+;======================================================================
+[patches_install_ini]
+;======================================================================
+; Installation settings. Leave out or leave empty for  Default settings
+set [gpg4win] inst_gpgol = $pr_comp_gpgol$
+set [gpg4win] inst_gpgex = $pr_comp_gpgex$
+set [gpg4win] inst_kleopatra = $pr_comp_kleopatra$
+set [gpg4win] inst_gpa = $pr_comp_gpa$
+set [gpg4win] inst_compendium = $pr_comp_compendium$
+
+; The locations at which linkages are to be prepared.
+set [gpg4win] inst_start_menu = $pr_StartMenuLink$
+set [gpg4win] inst_desktop = $pr_DesktopLink$
+set [gpg4win] inst_quick_launch_bar = $pr_QuickStartLink$
+
+; In contrast to the other options, this option overwrites
+; the user's settings in the installation assistant.
+set [gpg4win] inst_start_menu_folder = $ProductName$
+  
+  
+;=====================================================================
+[Files_remove_install_ini]
+;=====================================================================
+del -f "$InstallCfg$"  
+  
+

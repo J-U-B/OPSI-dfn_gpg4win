@@ -1,0 +1,169 @@
+;=====================================================================
+; product specific variables GPG4WIN
+;
+; Automatic installation of Gpg4win:
+; 	https://www.gpg4win.org/doc/en/gpg4win-compendium_35.html
+;
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 12:28:29 +0200
+;=====================================================================
+
+include_insert "%ScriptPath%\variables.opsiinc"
+
+Set $MAP$ = getProductMap
+Set $FullProductId$   	= getValue("id", $MAP$)
+Set $ProductName$     	= getValue("name", $MAP$)
+Set $Version$         	= getValue("ProductVersion", $MAP$)
+Set $SystemType$      	= GetSystemType
+Set $NTVersion$   		= GetMsVersionInfo
+
+;-----------------------------------------------------------
+;*** basic requirements
+;-----------------------------------------------------------
+requiredWinstVersion >= "4.11.6"
+
+if not ($NTVersion$ >= "6.1")
+	LogError "OS is not Windows 7 or above"
+	isFatalError
+endif
+
+if not ($SystemType$ = "64 Bit System")
+	LogError "OS is not a 64 Bit System"
+	isFatalError
+endif
+
+;-----------------------------------------------------------
+;*** detect testing package:
+;-----------------------------------------------------------
+if strPos($FullProductId$, "0_") = "0"
+	; no a testing package
+	set $ProductId$  = $FullProductId$ 
+	set $Testing$ = "false"
+	set $LogLvl$  = "5"
+else
+	; this is a testing package
+	comment "Prefix for testing package detected"
+	set $ProductId$  = strPart($FullProductId$,"3",strLength($FullProductId$))
+	set $Testing$ = "true"
+	set $LogLvl$  = "6"
+endif
+
+;-----------------------------------------------------------
+;*** detect DFN package:
+;-----------------------------------------------------------
+if strPos($FullProductId$, "dfn_") = "0"
+	set $isDFN$ = "false"
+	set $StrippedProductId$ = $ProductId$
+else
+	set $isDFN$ = "true"
+	set $StrippedProductId$ = strPart($ProductId$,"5",strLength($ProductId$))
+endif
+
+;-----------------------------------------------------------
+;*** Images
+;-----------------------------------------------------------
+if ($isDFN$ = "true")
+	set $Img_Install$		= "%ScriptPath%\images\" + $StrippedProductId$ + "_install_dfn.png"
+else
+	set $Img_Install$		= "%ScriptPath%\images\" + $StrippedProductId$ + "_install.png"
+endif
+set $Img_Install_Custom$	= "%ScriptPath%\images\" + $StrippedProductId$ + "_install_custom.png"
+Set $Img_Uninstall$			= "%ScriptPath%\images\" + $StrippedProductId$ + "_uninstall.png"
+Set $Img_Uninstall_Custom$	= "%ScriptPath%\images\" + $StrippedProductId$ + "_uninstall_custom.png"
+Set $Img_Prepare$			= "%ScriptPath%\images\" + $StrippedProductId$ + "_prepare.png"
+Set $Img_Plugins$			= "%ScriptPath%\images\" + $StrippedProductId$ + "_plugins.png"
+Set $Img_Update$			= "%ScriptPath%\images\" + $StrippedProductId$ + "_update.png"
+
+comment "preparing..."
+ShowBitmap $Img_Prepare$ $ProductName$
+
+;-----------------------------------------------------------
+;*** software architecture; valid values: "32 bit", "64 bit", "sysnative"
+;-----------------------------------------------------------
+; Set $sw_arch$ = GetProductProperty("install_architecture","sysnative")
+; Set $sw_arch$ = takeString(0, splitString($sw_arch$, " "))
+Set $sw_arch$		  = "32"
+
+if ( $sw_arch$ = "sysnative" )
+	if ($SystemType$ = "64 Bit System")
+		Set $sw_arch$ = "64"
+	else
+		Set $sw_arch$ = "32"
+	endif
+endif
+
+if ($sw_arch$ = "64")
+	; 64 bit software
+	set $InstallBase$ = "%ProgramFiles64Dir%"
+else
+	; 32 bit software
+	set $InstallBase$ = EnvVar("ProgramFiles(x86)")
+endif
+
+if ($SystemType$="x86 System") and ($sw_arch$="64")
+	LogError "Cannot install 64 bit version of " + $ProductName$ + " on a 32 bit operating system!"
+	isFatalError
+endif
+
+;-----------------------------------------------------------
+;*** property: language - "de_DE, "en_US"
+; application language defined via environment variable LANG
+;-----------------------------------------------------------
+Set $sw_lang$ = GetProductProperty("default_language","en_US")
+
+;-----------------------------------------------------------
+;*** property: create desktop/startmenu/quickstart link?
+;-----------------------------------------------------------
+Set $pr_StartMenuLink$ 		= GetProductProperty("link_startmenu","True")
+Set $pr_DesktopLink$ 		= GetProductProperty("link_desktop","False")
+Set $pr_QuickStartLink$ 	= GetProductProperty("link_quickstart","False")
+
+;-----------------------------------------------------------
+;*** properties: post install/uninstall
+;-----------------------------------------------------------
+set $CustomPostInstall$ 	= getProductProperty("custom_post_install","none")
+set $CustomPostUninstall$ 	= getProductProperty("custom_post_uninstall","none")
+
+;-----------------------------------------------------------
+;*** properties: components
+;-----------------------------------------------------------
+set $pr_comp_kleopatra$		= GetProductProperty("comp_kleopatra","False")
+set $pr_comp_gpa$			= GetProductProperty("comp_gpa","False")
+set $pr_comp_gpgol$			= GetProductProperty("comp_gpgol","False")
+set $pr_comp_gpgex$			= GetProductProperty("comp_gpgex","False")
+set $pr_comp_compendium$	= GetProductProperty("comp_compendium","False")
+
+;-----------------------------------------------------------
+;*** misc settings
+;-----------------------------------------------------------
+setlogLevel 				= $LogLvl$
+set $PSDETAIL$ 				= "%ScriptPath%\bin\psdetail.exe"
+set $Kill_Running$ 			= GetProductProperty("kill_running", "False")
+
+;-----------------------------------------------------------
+;*** specific settings
+;-----------------------------------------------------------
+Set $InstallerType$   	= "NSIS"
+include_append "%ScriptPath%\exitcode_nsis.opsiinc"
+
+
+; flavours:
+; 		gpg4win-2.3.3.exe
+;		gpg4win-light-2.3.3.exe
+;		gpg4win-vanilla-2.3.3.exe
+Set $Flavour$			= ""
+Set $Installer$		  	= "%ScriptPath%\files\" + lower($ProductName$) + $Flavour$ + "-" + $Version$ + ".exe"
+Set $InstallDir$      	= $InstallBase$ + "\" + $StrippedProductId$ + "\"
+Set $InstallCfg$		= "%opsiTmpDir%\" + $StrippedProductId$ + ".ini"
+Set $MinimumSpace$    	= "150 MB"
+
+Set $CheckBin$        	= "gpg2.exe"
+Set $Bins$				= CreateStringList('gpa2.exe', 'gpa.exe', 'bin\kleopatra.exe', 'gpg-agent.exe', 'scdaemon.exe', 'bin\dbus-daemon.exe')
+Set $Uninst_ID$ 	   	= "GPG4Win"
+Set $Uninst_Prg$       	= "gpg4win-uninstall.exe"
+Set $Uninstaller$	   	= $InstallDir$ + $Uninst_Prg$
+; ...oder UninstallString aus Registry
+; Set $UninstHelper$		= "%SystemRoot%\TEMP\%%\Au_.exe"
+Set $UninstHelper$		= "Au_.exe"
+
+Set $Inst_Opts$        	= '/S /C=' + $Installcfg$ + ' /D=' + $InstallDir$
+Set $Uninst_Opts$      	= '/S'

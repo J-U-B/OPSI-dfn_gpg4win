@@ -1,0 +1,134 @@
+;=====================================================================
+; delsub.opsiinc GPG4WIN
+;
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 12:24:18 +0200
+;=====================================================================
+
+Message "Removing previous version of " + $ProductName$
+marktime
+
+Set $RegKeyPath$ = "[HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + $Uninst_ID$ + "]"
+
+Set $UninstallString$ = GetRegistryStringValue32($RegKeyPath$ + " UninstallString")
+Set $Inst_Ver$        = GetRegistryStringValue32($RegKeyPath$ + " DisplayName")
+Set $Inst_Loc$        = GetRegistryStringValue32($RegKeyPath$ + " InstallLocation")
+
+comment "Start uninstall sub section for " + $Inst_Ver$
+if not ($UninstallString$="")
+
+	;=== uninstall (if uninstaller exists)
+	if not ($UninstallString$ = "") and fileExists($UninstallString$)
+		ShowBitmap $Img_Uninstall$ $ProductName$
+		Sub_Uninstall
+	else
+		logError "Uninstaller does not exist!"
+	endif
+	
+	;=== custom post uninstall
+	comment "include custom post uninstall file"
+	if not ($CustomPostUninstall$ = "none")
+		if FileExists("%ScriptPath%\custom\" + $CustomPostUninstall$)
+			ShowBitmap $Img_Uninstall_Custom$ $ProductName$
+			include_insert "%ScriptPath%\custom\" + $CustomPostUninstall$
+			ShowBitmap $Img_Uninstall$ $ProductName$
+		endif
+	endif
+
+	;=== measure time
+	set $TimeDiff$ = getDiffTimeSec
+	Message  "Removal time: " + $TimeDiff$ + " seconds"
+	
+else
+	comment "No uninstaller found at [" + $UninstallString$ + "]"
+endif
+
+
+
+
+;======================================================================
+[Sub_Uninstall]
+;======================================================================
+ShowBitmap $Img_Uninstall$ $ProductName$
+Message "Uninstalling previous setup of " + $ProductName$ + " " + $Version$
+
+;=== compare current InstallLocation with InstallDir from this package:
+sub_check_pathVar
+if not ($Uninst_RegDir$ = lower($InstallDir$))
+	logWarning "Current installation is not at the expected location:"
+	comment "   Current InstallLocation: [" + $Uninst_RegDir$ + "]"
+	comment "   Expected Location:       [" + $InstallDir$ + "]"
+endif
+
+;=== compare current Uninstaller with InstallDir from this package:
+if not (lower($Uninstaller$) = lower(stringReplace($UninstallString$,'"','')))
+	logWarning "Expected $UninstallString$ from registry does not match $Uninstaller$ from package:"
+	comment "   [" + $UninstallString$ + "] <> [" + $Uninstaller$ + "]"
+endif
+
+;=== check for running binaries
+if FileExists("%ScriptPath%\checkinstance.opsiinc")
+	include_append "%ScriptPath%\checkinstance.opsiinc"
+	if (count($Bins$) = "0")
+		; empty list of binaries, use only the one defined
+		Set $MainBin$ = $InstallDir$ + $CheckBin$
+		sub_checkinstance
+	else
+		; loop through list of possible binaries
+		for %bin% in $Bins$ do sub_check_bin
+	endif
+endif
+
+Winbatch_Uninstall /WaitForProcessEnding $UninstHelper$ /TimeOutSeconds 60
+sub_check_exitcode_nsis
+if ($ExitCode$ = "0") and not ($Uninst_RegDir$ ="")
+	;=== does the installation directory still exist?
+		if (FileExists($Inst_Loc$))
+			logWarning "Install directory still exists: [" + $Inst_Loc$ + "]"
+			;=== try final cleanup
+			Files_del_InstallDir
+		endif
+endif	
+
+
+;======================================================================
+[Winbatch_Uninstall]
+;======================================================================
+; "$Uninstaller$" $Uninst_Opts$
+$UninstallString$  $Uninst_Opts$
+
+
+;======================================================================
+[Files_del_InstallDir]
+;======================================================================
+delete -sf "$Uninst_RegDir$"
+
+
+;======================================================================
+[sub_check_exitcode]
+;======================================================================
+set $ExitCode$ = getLastExitCode
+if not ($ExitCode$ = "0")
+	logWarning "Last operation returned exitcode " + $ExitCode$
+endif
+
+
+;======================================================================
+[sub_check_pathVar]
+;======================================================================
+if ($Inst_Loc$ = "")
+	;===get install location from $UninstallString$
+	set $Uninst_RegDir$ = lower(ExtractFilePath($Uninst_RegDir$))
+else 
+	set $Uninst_RegDir$ = stringReplace(lower($Inst_Loc$) + "\", "\\", "\")
+endif
+
+
+;======================================================================
+[sub_check_bin]
+;======================================================================
+Set $MainBin$ = $InstallDir$ + "%bin%"
+sub_checkinstance
+
+
+
+

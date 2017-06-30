@@ -1,0 +1,45 @@
+;=====================================================================
+; exitcode_nsis.opsiinc
+; based on script by Der-Matze 
+; Source: https://forum.opsi.org/wiki/userspace:check_nullsoft-exitcode
+; J. Boettge <boettge@mpi-halle.mpg.de>  2016-10-20 16:30:18 +0200
+;=====================================================================
+
+
+;=====================================================================
+[sub_check_exitcode_nsis]
+;=====================================================================
+; DefVar $currentLogLevel$
+
+set $currentLogLevel$ = getLogLevel
+
+;*** ExitCode des Installers abfragen
+set $ExitCode$ = getLastExitCode
+ 
+;*** Loglevel anpassen
+setLogLevel = 4
+ 
+ 
+;*** ExitCode auswerten
+
+if ($ExitCode$ = "0")
+	setLogLevel = 5
+	comment "ExitCode = "+$ExitCode$+" Normal execution (no error)"
+	setLogLevel = $currentLogLevel$
+endif
+ 
+if ($ExitCode$ = "1")
+	setLogLevel = 5
+	logError "ExitCode = "+$ExitCode$+" Installation aborted by user (cancel button)"
+	isFatalError
+endif
+ 
+if ($ExitCode$ = "2")
+	setLogLevel = 5
+	logError "ExitCode = "+$ExitCode$+" Installation aborted by script"
+	isFatalError
+endif
+
+ 
+;***Loglevel anpassen
+setLogLevel = $currentLogLevel$

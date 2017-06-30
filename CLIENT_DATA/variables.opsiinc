@@ -1,0 +1,70 @@
+;=====================================================================
+; variables.opsiinc
+; This file contains all possible variables, excluding the opsi-system
+; variables, for the opsi-winst scripts in use.
+;
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 11:50:53 +0200
+;=====================================================================
+
+DefStringList $MAP$
+DefStringList $Bins$
+
+DefVar $CheckBin$
+DefVar $currentLogLevel$
+DefVar $CustomPostInstall$
+DefVar $CustomPostUninstall$
+DefVar $ExitCode$
+DefVar $Flavour$
+DefVar $FullProductId$
+DefVar $Img_Install$
+DefVar $Img_Install_Custom$
+DefVar $Img_Uninstall$
+DefVar $Img_Uninstall_Custom$
+DefVar $Img_Prepare$
+DefVar $Img_Plugins$
+DefVar $Img_Update$	
+DefVar $InstallBase$
+DefVar $InstallCfg$
+DefVar $InstallDir$
+DefVar $Installer$
+DefVar $InstallerType$
+DefVar $Inst_Loc$
+DefVar $Inst_Opts$
+DefVar $Inst_Ver$
+DefVar $isDFN$
+DefVar $LogLvl$
+DefVar $MainBin$
+DefVar $MinimumSpace$
+DefVar $NTVersion$
+DefVar $ProductId$
+DefVar $ProductName$
+DefVar $RegKeyPath$
+DefVar $StrippedProductId$
+DefVar $sw_lang$
+DefVar $sw_arch$
+DefVar $SystemType$
+DefVar $Testing$
+DefVar $TimeDiff$
+DefVar $Uninstaller$
+DefVar $UninstallString$
+DefVar $UninstHelper$
+DefVar $Uninst_ID$
+DefVar $Uninst_Opts$
+DefVar $Uninst_Prg$
+DefVar $Uninst_RegDir$
+DefVar $Version$
+; Properties:
+DefVar $pr_comp_kleopatra$
+DefVar $pr_comp_gpa$
+DefVar $pr_comp_gpgol$
+DefVar $pr_comp_gpgex$
+DefVar $pr_comp_compendium$
+DefVar $pr_DesktopLink$
+DefVar $pr_QuickStartLink$
+DefVar $pr_StartMenuLink$
+
+; Variables for checkinstance:
+DefVar $Proc_Cnt$
+DefVar $Proc_Killed$
+DefVar $PSDETAIL$
+DefVar $Kill_Running$
