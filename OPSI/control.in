@@ -5,7 +5,7 @@ incremental: False
 
 [Product]
 type: localboot
-id: {{TESTING}}{{ORGPREFIX}}gpg4win
+id: {{TESTPREFIX}}{{ORGPREFIX}}gpg4win
 name: GPG4win
 description: Gpg4win (GNU Privacy Guard for Windows) is encryption software for files and emails.
  ___
@@ -13,7 +13,7 @@ description: Gpg4win (GNU Privacy Guard for Windows) is encryption software for 
  Changelog: https://www.gpg4win.de/change-history.html
 advice: Maintainer: Jens Boettge <boettge@mpi-halle.mpg.de>
 Organization: {{ORGNAME}}
-Release date: 2017-07-12
+Release date: 2017-07-14
 version: 2.3.3
 priority: 0
 licenseRequired: False
@@ -117,6 +117,10 @@ description: Install Gpg4win Compendium - The documentation (for beginner and ad
 default: True
 
 [Changelog]
+{{ORGPREFIX}}gpg4win 2.3.3-8 {{STAGE}}:
+	* STAGE defined by Makefile
+	-- J. Boettge <boettge@mpi-halle.mpg.de>  2017-07-14 07:13:17 +0200
+
 {{ORGPREFIX}}gpg4win 2.3.3-8 testing:
 	* exitcode_nsis rewritten
 	* disabled unused properties: install_architecture, default_language

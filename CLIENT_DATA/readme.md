@@ -19,6 +19,13 @@ werden allerdings derzeit nicht verwendet.
 
 Die Software selbst wird <u>nicht</u> mit diesem Paket vertrieben.
 
+###Makefile###
+Der Code des Paketes ist moeglichst universell gehalten, dennoch wird versucht
+auf die Besonderheiten verschiedener Repositories einzugehen. Dafuer lassen
+sich ueber ein einfaches ***Makefile*** aus den Quellen verschiedene Pakete
+erstellen.  
+**OPSI/control** wird hierbei aus **OPSI/control.in** erstellt.
+
 
 ## Allgemeines ##
 
@@ -91,4 +98,4 @@ Die Variationen fuer das OPSI-Paket wurden von mir unter Verwendung weiterer
 freier Grafiken erstellt
 
 -----
-Jens Boettge <<boettge@mpi-halle.mpg.de>>, 2017-07-07 11:19:45 +0200
+Jens Boettge <<boettge@mpi-halle.mpg.de>>, 2017-07-14 10:24:26 +0200
