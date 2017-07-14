@@ -19,7 +19,7 @@ werden allerdings derzeit nicht verwendet.
 
 Die Software selbst wird <u>nicht</u> mit diesem Paket vertrieben.
 
-###Makefile###
+### Makefile ###
 Der Code des Paketes ist moeglichst universell gehalten, dennoch wird versucht
 auf die Besonderheiten verschiedener Repositories einzugehen. Dafuer lassen
 sich ueber ein einfaches ***Makefile*** aus den Quellen verschiedene Pakete
