@@ -5,15 +5,15 @@ incremental: False
 
 [Product]
 type: localboot
-id: 0_dfn_gpg4win
+id: {{TESTING}}{{ORGPREFIX}}gpg4win
 name: GPG4win
 description: Gpg4win (GNU Privacy Guard for Windows) is encryption software for files and emails.
  ___
  Homepage: https://www.gpg4win.de/
  Changelog: https://www.gpg4win.de/change-history.html
 advice: Maintainer: Jens Boettge <boettge@mpi-halle.mpg.de>
-Organization: DFN
-Release date: 2017-07-07
+Organization: {{ORGNAME}}
+Release date: 2017-07-12
 version: 2.3.3
 priority: 0
 licenseRequired: False
@@ -31,6 +31,24 @@ type: bool
 name: kill_running
 description: kill running instance (for software on_demand)
 default: False
+
+;[ProductProperty]
+;type: unicode
+;name: install_architecture
+;multivalue: False
+;editable: False
+;description: which architecture (32/64 bit) should be installed (currently only 32 bit)
+;values: ["32 bit"]
+;default: ["32 bit"]
+
+;[ProductProperty]
+;type: unicode
+;name: default_language
+;multivalue: False
+;editable: False
+;description: application default language (currently unused!)
+;values: ["de_DE", "en_US"]
+;default: ["en_US"]
 
 [ProductProperty]
 type: bool
@@ -99,7 +117,7 @@ description: Install Gpg4win Compendium - The documentation (for beginner and ad
 default: True
 
 [Changelog]
-dfn_gpg4win 2.3.3-8 testing:
+{{ORGPREFIX}}gpg4win 2.3.3-8 testing:
 	* exitcode_nsis rewritten
 	* disabled unused properties: install_architecture, default_language
 	* simple Makefile for creating packages; control moved to control.in
@@ -107,7 +125,7 @@ dfn_gpg4win 2.3.3-8 testing:
 	* Update PSDETAIL to v0.1.9.0dev
 	* extended checkinstance.opsiinc: search for part of commandline allowed
 	* changed checkinstance.opsiinc: sub_checkinstance_init before using sub_checkinstance
-	* try to stop service dirmngr before uninstall
+	* try to stop service dirmngr before uninstall	
 	-- J. Boettge <boettge@mpi-halle.mpg.de>  2017-07-12 11:41:21 +0200
 
 gpg4win 2.3.3-7 testing:

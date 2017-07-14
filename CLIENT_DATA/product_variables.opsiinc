@@ -36,15 +36,15 @@ endif
 ;-----------------------------------------------------------
 if strPos($FullProductId$, "0_") = "0"
 	; no a testing package
-	set $ProductId$  = $FullProductId$ 
-	set $Testing$ = "false"
-	set $LogLvl$  = "5"
+	set $ProductId$  	= $FullProductId$ 
+	set $Testing$ 		= "false"
+	set $LogLvl$  		= "5"
 else
 	; this is a testing package
 	comment "Prefix for testing package detected"
-	set $ProductId$  = strPart($FullProductId$,"3",strLength($FullProductId$))
-	set $Testing$ = "true"
-	set $LogLvl$  = "6"
+	set $ProductId$  	= strPart($FullProductId$,"3",strLength($FullProductId$))
+	set $Testing$ 		= "true"
+	set $LogLvl$  		= "6"
 endif
 
 ;-----------------------------------------------------------

@@ -3,7 +3,7 @@
 ; This file contains all possible variables, excluding the opsi-system
 ; variables, for the opsi-winst scripts in use.
 ;
-; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 11:50:53 +0200
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-07-07 16:25:56 +0200
 ;=====================================================================
 
 DefStringList $MAP$
@@ -67,4 +67,5 @@ DefVar $pr_StartMenuLink$
 DefVar $Proc_Cnt$
 DefVar $Proc_Killed$
 DefVar $PSDETAIL$
+DefVar $PSDETAIL_mod$
 DefVar $Kill_Running$

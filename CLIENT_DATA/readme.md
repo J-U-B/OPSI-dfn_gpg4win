@@ -1,7 +1,10 @@
 # GPG4win #
 
 Diese OPSI-Paket fuer **GPG4win** wurde aus dem internen Paket des *Max-Planck-Institut fuer Mikrostrukturphysik*
-abgeleitet und fuer die Verwendung im DFN-Repository angepasst und erweitert.
+abgeleitet und fuer die Verwendung im *DFN*-Repository angepasst und erweitert.
+Es wird versucht auf die Besonderheitden der jeweiligen Repositories einzugehen;
+entsprechend werden durch ein einfaches ***Makefile*** aus den Quellen verschiedene
+Pakete erstellt.
 
 
 ## Installation ##
@@ -88,4 +91,4 @@ Die Variationen fuer das OPSI-Paket wurden von mir unter Verwendung weiterer
 freier Grafiken erstellt
 
 -----
-Jens Boettge <<boettge@mpi-halle.mpg.de>>, 2017-06-29 15:58:01 +0200
+Jens Boettge <<boettge@mpi-halle.mpg.de>>, 2017-07-07 11:19:45 +0200

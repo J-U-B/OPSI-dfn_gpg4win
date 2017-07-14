@@ -1,8 +1,10 @@
 ;=====================================================================
 ; exitcode_nsis.opsiinc
-; based on script by Der-Matze 
-; Source: https://forum.opsi.org/wiki/userspace:check_nullsoft-exitcode
-; J. Boettge <boettge@mpi-halle.mpg.de>  2016-10-20 16:30:18 +0200
+; Source: 
+;	https://forum.opsi.org/wiki/userspace:check_nullsoft-exitcode
+;	http://nsis.sourceforge.net/Docs/AppendixD.html#errorlevels
+;
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-07-05 13:11:25 +0200
 ;=====================================================================
 
 
@@ -21,25 +23,31 @@ setLogLevel = 4
  
  
 ;*** ExitCode auswerten
-
-if ($ExitCode$ = "0")
-	setLogLevel = 5
-	comment "ExitCode = "+$ExitCode$+" Normal execution (no error)"
-	setLogLevel = $currentLogLevel$
-endif
- 
-if ($ExitCode$ = "1")
-	setLogLevel = 5
-	logError "ExitCode = "+$ExitCode$+" Installation aborted by user (cancel button)"
-	isFatalError
-endif
- 
-if ($ExitCode$ = "2")
-	setLogLevel = 5
-	logError "ExitCode = "+$ExitCode$+" Installation aborted by script"
-	isFatalError
-endif
-
+Switch $ExitCode$
+	Case "0"
+		setLogLevel = 5
+		comment "ExitCode = " + $ExitCode$ + " Normal execution (no error)"
+		setLogLevel = $currentLogLevel$
+	EndCase
+	 
+	Case "1"
+		setLogLevel = 5
+		logError "ExitCode = " + $ExitCode$ + " Installation aborted by user (cancel button)"
+		isFatalError
+	EndCase
+	 
+	Case "2"
+		setLogLevel = 5
+		logError "ExitCode = " + $ExitCode$ + " Installation aborted by script"
+		isFatalError
+	EndCase
+	
+	DefaultCase
+		setLogLevel = 5
+		logError "ExitCode = " + $ExitCode$ + " Unknown error"
+		isFatalError	
+	EndCase
+EndSwitch
  
 ;***Loglevel anpassen
 setLogLevel = $currentLogLevel$

@@ -1,11 +1,21 @@
 ;=====================================================================
 ; delsub.opsiinc GPG4WIN
 ;
-; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 12:24:18 +0200
+; J. Boettge <boettge@mpi-halle.mpg.de>  2017-07-12 11:15:50 +0200
 ;=====================================================================
 
-Message "Removing previous version of " + $ProductName$
+
+;=======================================
+[sub_delsub_main]
+;=======================================
+Message "Removing previous version(s) of " + $ProductName$
+ShowBitmap $Img_Prepare$ $ProductName$
 marktime
+
+if FileExists("%ScriptPath%\checkinstance.opsiinc")
+	include_append "%ScriptPath%\checkinstance.opsiinc"
+	sub_checkinstance_init
+endif	
 
 Set $RegKeyPath$ = "[HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\" + $Uninst_ID$ + "]"
 
@@ -51,8 +61,10 @@ endif
 ShowBitmap $Img_Uninstall$ $ProductName$
 Message "Uninstalling previous setup of " + $ProductName$ + " " + $Version$
 
+;=== get uninstall directory
+sub_check_PathVar
+
 ;=== compare current InstallLocation with InstallDir from this package:
-sub_check_pathVar
 if not ($Uninst_RegDir$ = lower($InstallDir$))
 	logWarning "Current installation is not at the expected location:"
 	comment "   Current InstallLocation: [" + $Uninst_RegDir$ + "]"
@@ -65,9 +77,23 @@ if not (lower($Uninstaller$) = lower(stringReplace($UninstallString$,'"','')))
 	comment "   [" + $UninstallString$ + "] <> [" + $Uninstaller$ + "]"
 endif
 
+;===stop running serivce
+winbatch_stop_service_dirmngr
+set $ExitCode$ = getLastExitCode
+switch $ExitCode$
+	Case "1062"
+		logWarning "Service DIRMNGR is not running. (Exitcode: 1062)"
+	EndCase
+	Case "1064"
+		logWarning "Service DIRMNGR does not exist. (Exitcode: 1064)"
+	EndCase
+	DefaultCase
+		comment "Stopping service DIRMNGR returns exitcode " + $ExitCode$
+	EndCase
+EndSwitch
+
 ;=== check for running binaries
 if FileExists("%ScriptPath%\checkinstance.opsiinc")
-	include_append "%ScriptPath%\checkinstance.opsiinc"
 	if (count($Bins$) = "0")
 		; empty list of binaries, use only the one defined
 		Set $MainBin$ = $InstallDir$ + $CheckBin$
@@ -80,7 +106,7 @@ endif
 
 Winbatch_Uninstall /WaitForProcessEnding $UninstHelper$ /TimeOutSeconds 60
 sub_check_exitcode_nsis
-if ($ExitCode$ = "0") and not ($Uninst_RegDir$ ="")
+if ($ExitCode$ = "0") and not ($Uninst_RegDir$ = "")
 	;=== does the installation directory still exist?
 		if (FileExists($Inst_Loc$))
 			logWarning "Install directory still exists: [" + $Inst_Loc$ + "]"
@@ -95,6 +121,12 @@ endif
 ;======================================================================
 ; "$Uninstaller$" $Uninst_Opts$
 $UninstallString$  $Uninst_Opts$
+
+
+;======================================================================
+[winbatch_stop_service_dirmngr]
+;======================================================================
+sc stop dirmngr
 
 
 ;======================================================================
