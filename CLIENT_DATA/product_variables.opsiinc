@@ -4,7 +4,7 @@
 ; Automatic installation of Gpg4win:
 ; 	https://www.gpg4win.org/doc/en/gpg4win-compendium_35.html
 ;
-; J. Boettge <boettge@mpi-halle.mpg.de>  2017-06-30 12:28:29 +0200
+; J. Boettge <boettge@mpi-halle.mpg.de>  2018-02-27 12:50:19 +0100
 ;=====================================================================
 
 include_insert "%ScriptPath%\variables.opsiinc"
@@ -21,7 +21,7 @@ Set $NTVersion$   		= GetMsVersionInfo
 ;-----------------------------------------------------------
 requiredWinstVersion >= "4.11.6"
 
-if not ($NTVersion$ >= "6.1")
+if CompareDotSeparatedNumbers($NTVersion$, "<", "6.1")
 	LogError "OS is not Windows 7 or above"
 	isFatalError
 endif
